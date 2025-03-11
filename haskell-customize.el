@@ -420,21 +420,21 @@ presence of a *.cabal file or stack.yaml file or something similar.")
   (let ((cabal-project (locate-dominating-file default-directory "cabal.project"))
         (cabal-sandbox (locate-dominating-file default-directory "cabal.sandbox.config"))
         (stack         (locate-dominating-file default-directory "stack.yaml"))
-        (cabal         (locate-dominating-file
+        (cabal         (locate-file
                         default-directory
                         (lambda (d)
                           (cl-find-if
                            (lambda (f) (string-match-p ".\\.cabal\\'" f))
                            (directory-files d))))))
     (cond
-     ((and cabal-project (executable-find "cabal"))
+     ((and (file-exists-p (concat cabal-project "cabal.project")) (executable-find "cabal"))
       (cons 'cabal-project cabal-project))
-     ((and cabal-sandbox (executable-find "cabal"))
+     ((and (file-exists-p (concat cabal-sandbox "cabal.sandbox.config")) (executable-find "cabal"))
       (cons 'cabal-sandbox cabal-sandbox))
-     ((and stack (executable-find "stack"))
+     ((and (file-exists-p (concat stack "stack.yaml")) (executable-find "stack"))
       (cons 'stack stack))
-     ((and cabal (executable-find "cabal"))
-      (cons 'cabal cabal))
+     ((and cabal (file-exists-p cabal) (executable-find "cabal"))
+      (cons 'cabal (file-name-directory cabal)))
      ((executable-find "ghc") (cons 'ghc nil))
      (t (error "Could not find any installation of GHC.")))))
 
